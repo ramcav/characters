@@ -1,0 +1,52 @@
+name: 'Infra CI/CD'
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'infra/**'
+      - '.github/workflows/ie-bank-infra.yml'
+
+env:
+  RESOURCE_GROUP_DEV: BCSAI2024-DEVOPS-STUDENTS-A-DEV
+  SUBSCRIPTION_ID_DEV: e0b9cada-61bc-4b5a-bd7a-52c606726b3b
+  USER_ALIAS: rmendez-dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Exercise I
+      # GitHub action: Write step to checkout code
+      - uses: actions/checkout@v2
+
+      # Exercise I
+      # GitHub action: Write step to linter main.bicep
+      - name: Run Bicep Linter
+        run: az bicep lint --file infra/main.bicep
+
+      - name: Build
+        run: az bicep build --file infra/main.bicep
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    environment:
+      name: 'Development'
+    
+    steps:
+      - uses: actions/checkout@v2
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Deploy Bicep Template
+        uses: azure/arm-deploy@v2
+        with:
+          subscriptionId: ${{ env.SUBSCRIPTION_ID_DEV }}
+          resourceGroupName: ${{ env.RESOURCE_GROUP_DEV }}
+          template: infra/main.bicep
+          parameters: infra/parameters/dev.bicepparam
+          additionalArguments: 
+            -p dbPass=${{ secrets.DBPASS }} dbUser=${{ secrets.DBUSER }}
+          deploymentName: ${{ env.USER_ALIAS }}
