@@ -55,6 +55,34 @@ module containerRegistry 'modules/container-registry.bicep' = { //path to the mo
   ]
 }
 
+module postgresSQLServer 'modules/postgre-sql-server.bicep' = {
+  name: postgreSQLServerName
+  params: {
+    name: postgreSQLServerName
+    location: location
+    administratorLogin: dbUser
+    administratorPassword: dbPass
+    keyVaultResourceId: keyVault.outputs.resourceId
+    KVPasswordSecret: 'DBPASS'
+    KVUsernameSecret: 'DBUSERNAME'
+  }
+  dependsOn: [
+    appServiceContainer
+  ]
+}
+module postgresSQLDatabase 'modules/postgre-sql-db.bicep' = {
+name: postgreSQLDatabaseName 
+params: {
+  postgreSqlServerName: postgreSQLServerName
+  name: postgreSQLDatabaseName 
+}
+dependsOn: [
+  postgresSQLServer
+]
+}
+
+
+
 module appServicePlan 'modules/app-service-plan.bicep' = {
   name: appServicePlanName
   params: {
@@ -81,8 +109,8 @@ resource keyVaultReference 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
       dockerRegistryImageName: dockerRegistryImageName
       dockerRegistryImageVersion: dockerRegistryImageVersion
       dbHost: dbHost
-      dbPass: dbPass
-      dbUser: dbUser
+      dbPass: keyVaultReference.getSecret('DBPASS')
+      dbUser: keyVaultReference.getSecret('DBUSERNAME')
       postgreSQLDatabaseName: postgreSQLDatabaseName
     }
     dependsOn: [
@@ -90,27 +118,3 @@ resource keyVaultReference 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
     keyVault
     ]
   }
-
-module postgresSQLServer 'modules/postgre-sql-server.bicep' = {
-    name: postgreSQLServerName
-    params: {
-      name: postgreSQLServerName
-      location: location
-      administratorLogin: dbUser
-      administratorPassword: dbPass
-    }
-    dependsOn: [
-      appServiceContainer
-    ]
-}
-module postgresSQLDatabase 'modules/postgre-sql-db.bicep' = {
-  name: postgreSQLDatabaseName 
-  params: {
-    postgreSqlServerName: postgreSQLServerName
-    name: postgreSQLDatabaseName 
-  }
-  dependsOn: [
-    postgresSQLServer
-  ]
-}
-
