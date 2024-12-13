@@ -20,19 +20,19 @@ param postgreSQLDatabaseName string
 
 param appSettings array = [
   {
-    name: 'DATABASE_HOST'
+    name: 'DBHOST'
     value: dbHost
   }
   {
-    name: 'DATABASE_USER'
+    name: 'DBUSER'
     value: dbUser
   }
   {
-    name: 'DATABASE_PASSWORD'
+    name: 'DBPASS'
     value: dbPass
   }
   {
-    name: 'DATABASE_NAME'
+    name: 'DBNAME'
     value: postgreSQLDatabaseName
   }
 ]
