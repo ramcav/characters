@@ -42,6 +42,6 @@ param ACRPass1SecretName = 'ACRpass1'
 // FlexibleSQL
 param dbPass = 'placeholder'
 param dbUser = 'placeholder'
-param dbHost = 'rmendez-db.dbrsv.postgres.database.azure.com'
+param dbHost = 'rmendez-dbsrv.postgres.database.azure.com'
 
 
