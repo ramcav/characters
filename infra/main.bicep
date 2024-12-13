@@ -67,7 +67,6 @@ module postgresSQLServer 'modules/postgre-sql-server.bicep' = {
     KVUsernameSecret: 'DBUSERNAME'
   }
   dependsOn: [
-    appServiceContainer
   ]
 }
 module postgresSQLDatabase 'modules/postgre-sql-db.bicep' = {
@@ -114,6 +113,7 @@ resource keyVaultReference 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
       postgreSQLDatabaseName: postgreSQLDatabaseName
     }
     dependsOn: [
+    postgresSQLServer
     containerRegistry
     keyVault
     ]
